@@ -6,9 +6,13 @@
 
 using namespace std;
 
-vector< vector<int> >map;
-vector< vector<int> > minute;
+//지도 정보 저장
+vector< vector<int> >map; 
+//물이차오르는 날을 저장
 vector< vector<int> > water_minute;
+//이동하는데 걸리는 시간
+vector< vector<int> > minute;
+
 queue< pair<int, int> > water;
 queue<pair<int, int> > q;
 int R, C;
@@ -54,16 +58,28 @@ D.*
 ...
 .S.
 #endif
+#if 1
 void find(vector<vector <int> > &v, int x, int y, int m){
-    debug(); //??why
-    if(v[x][y] != -1){
-        cout <<"find function"  <<"("<< x <<","<<y<<")"<<endl;
-        q.push(make_pair(x,y));
-        v[x][y] = -1;
-        minute[x][y] = m + 1; 
+    if(minute[x][y] == 0 &&(map[x][y] == 0)){
+        if(water_minute[x][y] == 0){
+            minute[x][y] = m+1;
+            q.push(make_pair(x,y));
+        }
+        else{ //물이 움직이는 시간과 두더지가 움직이는 시간 비교
+            if(water_minute[x][y] > m+1){
+                cout << "wa_minute[x][y]: " <<water_minute[x][y] << ",m+1: " << m+1<<endl;
+                minute[x][y] = m+1;
+                q.push(make_pair(x,y));
+            }
+        }
+        // cout <<"find function"  <<"("<< x <<","<<y<<")"<<endl;
+        // q.push(make_pair(x,y));
+        // v[x][y] = -1;
+        // minute[x][y] = m + 1; 
     }
 }
 void check(vector<vector <int> > &v, int x, int y){
+    //v는 맵
     cout << "CHECK the MAP" <<  "("<< x <<","<<y<<")"<<endl;
     debug();
     if(x>=0 && x< R && y>=1 && y<C+1) find(v, x, y-1, minute[x][y]);
@@ -73,77 +89,52 @@ void check(vector<vector <int> > &v, int x, int y){
         
    
 }
-
-void find_water(vector<vector <int> > &v, int x, int y, int){
-    if(v[x][y] == 0 && map[x][y] == 0){
-        water.push(make_pair(x,y));
-        v[x][y] = -1;
+#endif
+void find_water(vector<vector <int> > &v, int x, int y, int wm){
+    cout << "FIND the water" <<  "("<< x <<","<<y<<")"<<endl;
+    if(water_minute[x][y] == 0 && map[x][y] == 0 ){
+        cout<<" 000";
+        water_minute[x][y] = wm + 1;
+        water.push(make_pair(x,y));        
     }
 }
 void check_water(vector<vector <int> > &v, int x, int y){
-    if(x>=0 && x<= R && y>=1 && y<=C+1) find_water(v, x, y-1, water_minute[x][y]);
-    if(x>=0 && x<= R && y>=-1 && y<=C-1) find_water(v, x, y+1, water_minute[x][y]);
-    if(x>=1 && x<= R+1 && y>=0 && y<=C) find_water(v, x-1, y, water_minute[x][y]);
-    if(x>=-1 && x<= R-1 && y>=0 && y<=C) find_water(v, x+1, y, water_minute[x][y]);
+    cout << "CHECK the water" <<  "("<< x <<","<<y<<")"<<endl; //wX, wY
+    print(water_minute);
+    if(x>=0 && x< R && y>=1 && y<C+1) find_water(v, x, y-1, water_minute[x][y]);
+    if(x>=0 && x< R && y>=-1 && y<C-1) find_water(v, x, y+1, water_minute[x][y]);
+    if(x>=1 && x< R+1 && y>=0 && y<C) find_water(v, x-1, y, water_minute[x][y]);
+    if(x>=-1 && x< R-1 && y>=0 && y<C) find_water(v, x+1, y, water_minute[x][y]);
 }
 
-int main(int argc, char* argv[]){
-//-------------------------------------------
-//---------------SETUP-----------------------
-//-------------------------------------------
+int main(int argc, char* argv[]) {
     cout << "baekjoon #3055" << endl;
     int result;
-    
     pair<int, int> start, dest, temp;
     cin >> R >> C;
     
     map.assign(R, vector<int>(C, 0));
     minute.assign(R, vector<int>(C,0));
+    water_minute.assign(R, vector<int>(C,0));
 
     build(start, dest);
 
+    //물에 대한 BFS
+      
     while(!water.empty()){
         int wX = water.front().first;
         int wY = water.front().second;
         water.pop();
         check_water(map, wX, wY);
+        // debug();
     }
-    debug();
-#if 0
-3 3
-D.*
-...
-.S.
-#endif
-    #if 0
-
-    minute[start.first][start.second] = 1;
-
-
-    for(int x =0; x < map.size(); x++){
-        for(int y =0; y < map[0].size(); y++) {
-            q.push(start);
-            map[start.first][start.second] = -1;
-        }
-    }
-    cout << "///////map start input///////" <<endl;
-    debug();
-
-    
-    while(!q.empty()){
-        
-        
-        cout<<"AFTER FLOODING"<<endl;
-
+    q.push(start);
+    while(!q.empty()){      
         temp = q.front();
         q.pop();
         check(map, temp.first, temp.second);
     }
 
-    int max = -1;
-    if(minute[dest.first][dest.second] == -1) cout <<"KAKTUS"<<endl;
-    else{
-        cout << minute[dest.first][dest.second]-1 <<endl;
-    }
-    #endif
+    if(minute[dest.first][dest.second] != 0) cout << "ANSWER"<< minute[dest.first][dest.second]<<endl;
+    else cout<<"KAKTUS"<<endl;
 }
