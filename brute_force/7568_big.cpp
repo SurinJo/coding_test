@@ -2,6 +2,7 @@
 #include <vector>
 
 using namespace std;
+
 int main(){
 	int N;
     int wegiht, height;
@@ -11,7 +12,14 @@ int main(){
         cin >> wegiht >> height;
         people.push_back(make_pair(wegiht, height));
     }
+    int k;
+    for(int i = 0; i < N; i++){
+        k = 0; // 비교대상
+        for(int j = 0; j < N; j++){
+            if((people[i].first < people[j].first)
+            && (people[i].second < people[j].second)) k++;
+            
+        }
+        cout << k + 1 <<" ";
+    }
 }
-// 11:40준비
-// 12:20출발
-// 12:40도착
